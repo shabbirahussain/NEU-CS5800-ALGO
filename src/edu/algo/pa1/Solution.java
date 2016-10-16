@@ -83,6 +83,11 @@ class Heap<T extends Comparable<T>>{
 		return this.getMaxDepth(root);
 	}
 	
+	@Override
+	public String toString(){
+		return this.root.toString();
+	}
+	
 	/**
 	 * Adds element to the heap given root node and element
 	 * @param root is the root node of the heap
