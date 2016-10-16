@@ -71,8 +71,8 @@ class Heap<T extends Comparable<T>>{
 	 * @param o is the object to be added
 	 * @return True is element is successfully added to heap. It fails if the root node is smaller than the given element.
 	 */
-	public boolean addToHeap(T o){
-		return this.addToHeap(root, new Node(o));
+	public boolean add(T o){
+		return this.add(root, new Node(o));
 	}
 	
 	/**
@@ -89,18 +89,18 @@ class Heap<T extends Comparable<T>>{
 	 * @param o is the object of node to be added into heap
 	 * @return True is element is successfully added to heap. It fails if the root node is smaller than the given element.
 	 */
-	private boolean addToHeap(Node root, Node o){
+	private boolean add(Node root, Node o){
 		if(root.data.compareTo(o.data)== 1){ // Circle is smaller than root
             // Try to add it to children
 			ListIterator<Node> ci = root.children.listIterator();
 			while(ci.hasNext()){
                 Node n = ci.next();	                
                 if(n.data.compareTo(o.data)==-1){	// Circle is greater than child
-                	addToHeap(o, n);				// Move branch inside the circle
+                	add(o, n);				// Move branch inside the circle
                 	ci.set(o);						// Update current branch
                     return true;
                 }else{								// Circle is less than child
-				    boolean res = addToHeap(n, o);
+				    boolean res = add(n, o);
 				    if(res) return true;	       	// Successfully added to child
                 }
 			}
@@ -128,21 +128,18 @@ class Heap<T extends Comparable<T>>{
 
 public class Solution {
 	public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        int n = in.nextInt();
-
-        List<Circle> inputs = new LinkedList<>();
-        for(int i=0;i<n;i++)
-            inputs.add(new Circle(in.nextInt(), in.nextInt(), in.nextInt()));
-        in.close();
-
-        // Create a dummy root node
+		// Create a dummy root node
         Circle root       = new Circle(0, 0, Double.POSITIVE_INFINITY);
         Heap<Circle> heap = new Heap<>(root);
         
-        for(Circle c: inputs)
-        	heap.addToHeap(c);
-        
+		
+        Scanner in = new Scanner(System.in);
+        int n = in.nextInt();
+
+        for(int i=0;i<n;i++)
+        	heap.add(new Circle(in.nextInt(), in.nextInt(), in.nextInt()));
+        in.close();
+
         System.out.println(heap.getMaxDepth()-2);
     }
 }
