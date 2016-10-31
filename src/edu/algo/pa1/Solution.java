@@ -145,6 +145,7 @@ public class Solution {
         	heap.add(new Circle(in.nextInt(), in.nextInt(), in.nextInt()));
         in.close();
 
+        System.out.println(heap);
         System.out.println(heap.getMaxDepth()-2);
     }
 }
