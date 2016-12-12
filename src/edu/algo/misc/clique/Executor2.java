@@ -28,9 +28,7 @@ public class Executor2 {
 		solMap = new HashMap<>();
 		cnt = 0;
 	}
-	public void findClique(String r, String p, Collection<String> parents){
-		System.out.print("\n"+(++cnt)+"\tNode: "+p+"->"+r);
-		
+	public void findClique(String r, Collection<String> parents){
 		// Build current solution
 		Set<String> curr = new HashSet<>(parents);
 		// Get children to expand
@@ -38,7 +36,7 @@ public class Executor2 {
 		// parents intersection r.children
 		curr.retainAll(children);					// O(n*log(n))		
 		// add current node to the frontier
-		curr.add(r);								// O(n*log(n))
+		curr.add(r);								// O(log(n))
 		
 		// Get intermediate solution
 		Set<String> prev = solMap.get(r);			// O(log(n))
@@ -71,16 +69,18 @@ public class Executor2 {
 		
 		if(optSol.size()<prev.size())
 			optSol = prev;
-		System.out.print("\tcurr="+prev);
+		System.out.print("\tcurr=");printSet(prev);
 		
-		if(p!=null) {
-			graph2.removeEdge(p, r); graph2.removeEdge(r, p);
-		}
 		do{
 			children = getChildren(graph2, r);
 			if(!children.iterator().hasNext()) break;
 			
-			findClique(children.iterator().next(), r, prev);
+			String c = children.iterator().next();
+			graph2.removeEdge(r, c); graph2.removeEdge(c, r);
+			
+			System.out.print((++cnt)+"\tNode: "+r+"->"+c);
+			
+			findClique(c, prev);
 		}while(true);
 	}
 	
@@ -93,13 +93,16 @@ public class Executor2 {
 		String r = e.graph1.vertexSet().iterator().next();
 		
 		// Execute clique search
-		e.findClique(r, null, parents);
+		e.findClique(r, parents);
 		
 		// Print results
 		System.out.print("\n\n"+e.optSol.size()+"\t");
-		
-		List<Integer> sol = new ArrayList<Integer>(e.optSol.size());
-		for(String s: e.optSol){
+		printSet(e.optSol);
+	}
+	
+	private static void printSet(Set<String> optSol){
+		List<Integer> sol = new ArrayList<Integer>(optSol.size());
+		for(String s: optSol){
 			sol.add(Integer.parseInt(s));
 		}
 		Collections.sort(sol);
@@ -243,7 +246,7 @@ public class Executor2 {
     	g.addVertex("63");
     	g.addVertex("64");
     	g.addEdge("3", "2");g.addEdge("2", "3");
-    	g.addEdge("4", "1");g.addEdge("1", "4");
+    	//g.addEdge("4", "1");g.addEdge("1", "4");
     	g.addEdge("5", "2");g.addEdge("2", "5");
     	g.addEdge("5", "3");g.addEdge("3", "5");
     	g.addEdge("5", "4");g.addEdge("4", "5");
