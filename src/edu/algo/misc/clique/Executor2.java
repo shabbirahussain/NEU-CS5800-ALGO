@@ -1,8 +1,13 @@
 package edu.algo.misc.clique;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -73,8 +78,8 @@ public class Executor2 {
 		}
 		do{
 			children = getChildren(graph2, r);
-			
 			if(!children.iterator().hasNext()) break;
+			
 			findClique(children.iterator().next(), r, prev);
 		}while(true);
 	}
@@ -91,7 +96,14 @@ public class Executor2 {
 		e.findClique(r, null, parents);
 		
 		// Print results
-		System.out.println("\n\n"+e.optSol.size()+"\t"+e.optSol);
+		System.out.print("\n\n"+e.optSol.size()+"\t");
+		
+		List<Integer> sol = new ArrayList<Integer>(e.optSol.size());
+		for(String s: e.optSol){
+			sol.add(Integer.parseInt(s));
+		}
+		Collections.sort(sol);
+		System.out.println(sol);
 	}
 	
 	private Set<String> getChildren(Graph<String, DefaultEdge> graph, String r){
