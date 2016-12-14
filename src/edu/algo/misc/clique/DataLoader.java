@@ -4,7 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-import org.jgrapht.DirectedGraph;
+import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
@@ -16,8 +16,8 @@ public class DataLoader {
 	 * @return DirectedGraph
 	 * @throws FileNotFoundException
 	 */
-	public static DirectedGraph<String, DefaultEdge> getGraph(String filePath, Boolean undirected) throws FileNotFoundException{
-    	DirectedGraph<String, DefaultEdge> g = new DefaultDirectedGraph<>(DefaultEdge.class);
+	public static Graph<String, DefaultEdge> getGraph(String filePath, Boolean undirected) throws FileNotFoundException{
+    	Graph<String, DefaultEdge> g = new DefaultDirectedGraph<>(DefaultEdge.class);
     	
     	Scanner in = new Scanner(new FileInputStream(filePath));
     	while(in.hasNextLine()){
@@ -30,11 +30,12 @@ public class DataLoader {
     			if(! g.containsVertex(tokens[1])) g.addVertex(tokens[1]);
     			
     			g.addEdge(tokens[0], tokens[1]);
-    			if(undirected)
+    			//if(undirected)
     				g.addEdge(tokens[1], tokens[0]);
     		}
     	}
     	in.close();
+    	System.out.println(g.vertexSet());
     	return g;
 	}
  

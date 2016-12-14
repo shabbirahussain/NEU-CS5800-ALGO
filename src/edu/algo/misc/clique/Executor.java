@@ -3,7 +3,6 @@ package edu.algo.misc.clique;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -11,16 +10,27 @@ import static edu.algo.misc.clique.Constants.*;
 
 public class Executor {	
 	public static void main(String[] args) throws FileNotFoundException {
+		run(MTX_FILE);
+	}
+	
+	public static int run(String mtxFileName) throws FileNotFoundException{
 		// Initialize
-		CliqueFinder e = new CliqueFinder(MTX_FILE);
-		String r = e.gFull.vertexSet().iterator().next();
+		CliqueFinder e = new CliqueFinder(mtxFileName);
 		
 		// Execute clique search
-		e.findClique(r, new HashSet<String>());
+		int msc = e.findClique();
 		
 		// Print results
-		System.out.print("\n\n"+e.optSol.size()+"\t");
-		printSet(e.optSol);
+		System.out.println("\n\nMy Solution:");
+		System.out.println("Max clique Size : " + msc); 
+		System.out.print("Maximum clique: "); printSet(e.optSol);
+		System.out.println("Time taken : " + e.timeTaken + " SEC");
+		
+		System.out.print("\n\nSA Solution:");
+		int sac = ResultValidator.runValidation(mtxFileName);
+		
+		System.out.print("\n\nDiff:"); System.out.println(sac - msc);
+		return (sac - msc);
 	}
 	
 	/**

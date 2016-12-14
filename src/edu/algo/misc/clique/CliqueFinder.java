@@ -7,20 +7,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.jgrapht.DirectedGraph;
+import org.jgrapht.Graph;
 import org.jgrapht.graph.AbstractBaseGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 public class CliqueFinder {
-	public  static final Boolean UNDIRECTED = true;
+	private static final Boolean DEBUG_OUT  = true; 
+	private static final Boolean UNDIRECTED = false;
 	
-	DirectedGraph<String, DefaultEdge> gFull, gUnvisited;
+	Graph<String, DefaultEdge> gFull, gUnvisited;
 	Map<String, Set<String>> solMap;
 	
 	// Public results
 	public Set<String> optSol;
 	public Integer cnt;
-
+	public Double  timeTaken;
 	
 	/**
 	 * Default constructor
@@ -29,11 +30,12 @@ public class CliqueFinder {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public CliqueFinder(String mtxPath) throws FileNotFoundException{
 		this.gFull      = DataLoader.getGraph(mtxPath, UNDIRECTED);
-		this.gUnvisited = (DirectedGraph<String, DefaultEdge>) ((AbstractBaseGraph) gFull).clone();
+		this.gUnvisited = (Graph<String, DefaultEdge>) ((AbstractBaseGraph) gFull).clone();
 		
 		optSol = new HashSet<>();
 		solMap = new HashMap<>();
 		cnt = 0;
+		
 	}
 	
 	/**
@@ -45,7 +47,7 @@ public class CliqueFinder {
 	private Set<String> getChildren(String node, Boolean onlyUnVisited){
 		Set<String> result = new HashSet<>();
 		
-		DirectedGraph<String, DefaultEdge> g;
+		Graph<String, DefaultEdge> g;
 		g = (onlyUnVisited)? gUnvisited: gFull;
 		
 		for(DefaultEdge e: g.edgesOf(node)){
@@ -68,13 +70,37 @@ public class CliqueFinder {
 			gUnvisited.removeEdge(v, u);
 	}
 	
-	
+	/**
+	 * Solves the clique problem
+	 * @return Size of a clique
+	 */
+	public int findClique(){
+		long time = System.currentTimeMillis();
+		
+		while(gUnvisited.vertexSet().size()>0){
+			String r  = gUnvisited.vertexSet().iterator().next();
+			findClique(r, null, new HashSet<String>());
+			
+			Set<String> vSet = new HashSet<>(gUnvisited.vertexSet());
+			for(String v: vSet){
+				if(gUnvisited.edgesOf(v).size()>0) continue;
+				
+				gUnvisited.removeVertex(v);
+				gFull.removeVertex(v);
+			}
+		}
+		time = System.currentTimeMillis() - time;
+		this.timeTaken = time / 1000.0; 
+		
+		return this.optSol.size();
+	}
+		
 	/**
 	 * Solves the clique problem
 	 * @param r is the start node for recursion
 	 * @param parents is the parent set of clique found till now
 	 */
-	public void findClique(String r, Collection<String> parents){
+	private void findClique(String r, String p, Collection<String> parents){
 		// Build current solution
 		Set<String> curr = new HashSet<>(parents);
 		// Get children to expand
@@ -94,12 +120,18 @@ public class CliqueFinder {
 			curr.removeAll(common);					// O(n*log(n))
 			prev.removeAll(common);					// O(n*log(n))
 			
+			if(cnt==50){
+				System.out.print("\ncom ="); Executor.printSet(common);
+				System.out.print("\ncurr="); Executor.printSet(curr);
+				System.out.print("\nprev="); Executor.printSet(prev);
+			}
+			
 			Set<String> big, sml;
 			if(curr.size() > prev.size()){ big = curr; sml = prev; }
 			else                         { big = prev; sml = curr; }
 
 			for(String c:sml){						// O(n^2 log(n))
-				cnt++;
+				//cnt++;
 				Set<String> cc = getChildren(c, false);
 				cc.retainAll(big);					// O(n*log(n))
 				if(cc.size() == big.size())
@@ -114,20 +146,28 @@ public class CliqueFinder {
 		
 		// Store global optimal
 		if(optSol.size()<curr.size()) optSol = curr;
-		System.out.print("\tcurr="); Executor.printSet(curr);
+		if(DEBUG_OUT){
+			System.out.print("\tcurr="); Executor.printSet(curr);
+		}
 		
 		do{
 			// Look for only unvisted children
 			children = getChildren(r, true);
 			if(!children.iterator().hasNext()) break;
+
+			String c;
+			if(p!=null && children.contains(p))
+				c = p;
+			else
+				c = children.iterator().next();
 			
-			String c = children.iterator().next();
+			
 			markVisited(r, c); 
-			
-			System.out.print((++cnt)+"\tNode: "+r+"->"+c);
-			
+			if(DEBUG_OUT){
+				System.out.print((++cnt)+"\tNode: "+r+"->"+c);
+			}
 			// Recurse
-			findClique(c, curr);
+			findClique(c, r, curr);
 		}while(true);
 	}
 	
